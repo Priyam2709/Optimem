@@ -7,24 +7,21 @@
     <link rel="stylesheet" href="main.css">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-
 </head>
 <body>
     <main class="text-white">
-        <nav class="flex justify-between items-center h-16 bg-black  fixed shadow-sm font-mono text-2xl font-bold w-full" role="navigation ">
+        <nav class="flex justify-between items-center h-16 bg-black fixed shadow-sm font-mono text-2xl font-bold w-full" role="navigation">
             <div class="pl-8">
-                <h1 class="text-3xl">OptiMem</h1>
+                <h1 class="text-3xl bg-blue-700 font-bold w-full">OptiMem</h1>
             </div>
-           
             <ul class="pr-8 flex justify-between items-center gap-x-6">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Blog</a></li>
-                <li><a href="#">Services</a></li>
-                <li><a href="#">Contact</a></li>
+                <li><a href="#home" class="hover:text-blue-400 transition duration-300">Home</a></li>
+                <li><a href="#blog" class="hover:text-blue-400 transition duration-300">Blog</a></li>
+                <li><a href="#services" class="hover:text-blue-400 transition duration-300">Services</a></li>
+                <li><a href="#contact" class="hover:text-blue-400 transition duration-300">Contact</a></li>
             </ul>
         </nav>
-        <div class="grid grid-cols-2 gap-40 p-10 bg-slate-950">
+        <div id="home" class="grid grid-cols-2 gap-40 p-10 bg-slate-950">
             <div class="flex flex-col justify-center items-center mt-12 p-20">
                 <h1 class="text-5xl mb-4">Optimize Memory</h1>
                 <img src="Pics/Pics/8f2e02_b48fe634bb514414b1960c320e7f8500~mv2.png" alt="" class="">
@@ -49,7 +46,13 @@
                             </label>
                             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="pageSize" type="number" placeholder="Enter page size" required>
                         </div>
-            
+                        <!-- Segment Size (New Feature) -->
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="segmentSize">
+                                Segment Size (in KB)
+                            </label>
+                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="segmentSize" type="number" placeholder="Enter segment size" required>
+                        </div>
                         <!-- Page Replacement Algorithm -->
                         <div class="mb-4">
                             <label class="block text-gray-700 text-sm font-bold mb-2" for="algorithm">
@@ -89,7 +92,16 @@
                             <h3 class="text-xl font-bold mb-2">Page Table Mappings</h3>
                             <div id="pageTable" class="text-lg"></div>
                         </div>
-            
+                        <!-- Segmentation Table (New Feature) -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-2">Segmentation Table</h3>
+                            <div id="segmentationTable" class="text-lg"></div>
+                        </div>
+                        <!-- Memory Fragmentation (New Feature) -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-2">Memory Fragmentation</h3>
+                            <div id="fragmentation" class="text-lg"></div>
+                        </div>
                         <!-- Page Faults and Replacements -->
                         <div class="mb-6">
                             <h3 class="text-xl font-bold mb-2">Page Faults and Replacements</h3>
@@ -115,6 +127,9 @@
                             </button>
                             <button id="stepBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                                 Step
+                            </button>
+                            <button id="exportBtn" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                Export Results
                             </button>
                         </div>
                     </div>
@@ -142,33 +157,33 @@
                 <img src="Pics\Pics\8f2e02_007c7a6a49524a79bdfed26d354dfbf3~mv2.png" alt="">
             </div>
         </div>
-        <div class="bg-slate-600 p-8 pt-20">
+        <div id="blog" class="bg-slate-600 p-8 pt-20">
             <h1 class=" text-5xl font-mono">Latest Post</h1>
             <div class="grid grid-cols-3 gap-20 p-20">
-                <div class="border-2 border-white p-4">
+                <div class="border-2 border-white p-4 hover:scale-105 transition-transform duration-300"">
                     <img src="Pics\Pics\8f2e02_b4e24642066940cba3fef50eb2fd9bda~mv2.webp" alt="">
                     <p class="text-2xl py-2">Priyam Saxena</p>
-                    <p>April 20, 2021</p>
+                    <p>March 15, 2025</p>
                     <hr>
                     <h1 class="text-4xl">Enhance Operating System, Learning with OptiMum Intractive Simulation</h1>
                 </div>
-                <div class="border-2 border-white p-4">
+                <div class="border-2 border-white p-4 hover:scale-105 transition-transform duration-300"">
                     <img src="Pics\Pics\8f2e02_3a523c7d250f465998f94e90f695b16f~mv2.webp" alt="">
                     <p class="text-2xl py-2">Aaditya Jain</p>
-                    <p>April 20, 2021</p>
+                    <p>March 2, 2025</p>
                     <hr>
-                    <h1 class="text-4xl">SimuLearn OS: Optimal Simulation for OS Learning</h1>
+                    <h1 class="text-4xl">Stimulate various virtual memory optimisation algorithms</h1>
                 </div>
-                <div class="border-2 border-white p-4">
+                <div class="border-2 border-white p-4 hover:scale-105 transition-transform duration-300"">
                     <img src="Pics\Pics\8f2e02_e8a3928c3eab42f8a43abb1a3cbe3a7a~mv2.webp" alt="">
-                    <p class="text-2xl py-2">John Chacha</p>
-                    <p>April 20, 2021</p>
+                    <p class="text-2xl py-2">Paras Bajaj</p>
+                    <p>March 20, 2025</p>
                     <hr>
-                    <h1 class="text-4xl">OptiTech OS: Technological Simulation for OS Learning</h1>
+                    <h1 class="text-4xl">Visualise how pages are loaded from main memory to memory frames</h1>
                 </div>
             </div>
         </div>
-        <div class="bg-black p-8 pt-20">
+        <div id="services" class="bg-black p-8 pt-20">
             <h1 class="text-5xl font-mono">Services</h1>
             <div class="grid grid-cols-3 gap-20 p-20">
                 <div class="border-b-2 border-white p-4">
@@ -189,9 +204,9 @@
             </div>
 
         </div>
-        <footer class="grid grid-cols-3 bg-white p-8 text-black mt-8 h-96">
+        <footer id="contact" class="grid grid-cols-3 bg-white p-8 text-black mt-8 h-96">
             <div>
-                <h1 class="text-2xl">OptiMem</h1>
+                <h1 class="text-4xl font-extrabold text-indigo-500 animate-pulse">OptiMem</h1>
             </div>
             <div>
                 <h1 class="text-2xl">
@@ -203,14 +218,25 @@
                     priyamsaxena23@lpu.in
                     <br>
                     <br>
-                    500 Terry Francine Street, 
-                    <br> 6th Floor, San Francisco, CA 94158
+                    Lovely Professional University
+                </h1>
+                <br>
+                <h1 class="text-2xl">
+                    Paras Bajaj
+                    <br>
+                    9876553081
+                    <br>
+                    <br>
+                    parasbajaj23@lpu.in
+                    <br>
+                    <br>
+                    Lovely Professional University
                 </h1>
                 <div class="flex gap-x-4 h-10 my-8">
-                    <img src="Pics\Pics\f_logo.png" alt="">
-                    <img src="Pics\Pics\i_logo.png" alt="">
-                    <img src="Pics\Pics\w_logo.png" alt="">
-                    <img src="Pics\Pics\x_logo.png" alt="">
+                    <img src="Pics/Pics/f_logo.png" alt="" class="hover:scale-110 transition-transform">
+                    <img src="Pics/Pics/i_logo.png" alt="" class="hover:scale-110 transition-transform">
+                    <img src="Pics/Pics/w_logo.png" alt="" class="hover:scale-110 transition-transform">
+                    <img src="Pics/Pics/x_logo.png" alt="" class="hover:scale-110 transition-transform">
                 </div>
             </div>
             <div>
@@ -232,78 +258,107 @@
 });
 
 document.getElementById('simulationForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent form submission
+    event.preventDefault();
 
-    // Get form inputs
-    const memorySize = document.getElementById('memorySize').value;
-    const pageSize = document.getElementById('pageSize').value;
-    const algorithm = document.getElementById('algorithm').value;
-    const accessSequence = document.getElementById('accessSequence').value.split(',').map(Number);
+            // Validate inputs
+            const memorySize = parseInt(document.getElementById('memorySize').value);
+            const pageSize = parseInt(document.getElementById('pageSize').value);
+            const segmentSize = parseInt(document.getElementById('segmentSize').value);
+            const algorithm = document.getElementById('algorithm').value;
+            const accessSequence = document.getElementById('accessSequence').value.split(',').map(Number);
 
-    // Validate inputs
-    if (!memorySize || !pageSize || !algorithm || !accessSequence) {
-        alert('Please fill out all fields.');
-        return;
-    }
+            if (!memorySize || !pageSize || !segmentSize || !algorithm || accessSequence.length === 0) {
+                alert('Please fill out all fields correctly.');
+                return;
+            }
 
-    // Initialize simulation
-    initializeSimulation(memorySize, pageSize, algorithm, accessSequence);
+            if (memorySize < pageSize || memorySize < segmentSize) {
+                alert('Memory size must be greater than page size and segment size.');
+                return;
+            }
 
-    // Show simulation and visualization sections
-    document.getElementById('simulationSection').classList.toggle('hidden');
-    document.getElementById('visualizationSection').classList.toggle('hidden');
+            // Initialize simulation
+            initializeSimulation(memorySize, pageSize, segmentSize, algorithm, accessSequence);
 
-    // Initialize charts after the visualization section is visible
-    initializeCharts();
+            // Show simulation and visualization sections
+            document.getElementById('simulationSection').classList.remove('hidden');
+            document.getElementById('visualizationSection').classList.remove('hidden');
+
+            // Initialize charts
+            initializeCharts();
 });
 
 // Simulation Variables
-let simulationInterval;
-let memoryFrames = []; // Represents the memory frames (e.g., [1, 2, 3])
-let currentStep = 0;
-let pageFaults = 0;
-let tlbHits = 0;
-let tlbMisses = 0;
-let pageTable = {};
-let accessSequence = [];
-
-// Chart Variables
-let pageFaultChart;
-let algorithmComparisonChart;
+        let simulationInterval;
+        let memoryFrames = [];
+        let currentStep = 0;
+        let pageFaults = 0;
+        let tlbHits = 0;
+        let tlbMisses = 0;
+        let pageTable = {};
+        let segmentationTable = {};
+        let accessSequence = [];
+        let memorySize, pageSize, segmentSize, selectedAlgorithm;
+        let pageFaultChart;
+        let pageReplaceCount = {}; // Track how often each page is replaced
 
 function initializeSimulation(memorySize, pageSize, algorithm, sequence) {
-    // Reset simulation
-    memoryFrames = [];
-    currentStep = 0;
-    pageFaults = 0;
-    tlbHits = 0;
-    tlbMisses = 0;
-    pageTable = {};
-    accessSequence = sequence;
+            memorySize = memSize;
+            pageSize = pSize;
+            segmentSize = segSize;
+            selectedAlgorithm = algorithm;
+            accessSequence = sequence;
 
-    // Update UI
-    updatePageTable();
-    updatePageFaults();
-    updateTLBStats();
+            memoryFrames = [];
+            currentStep = 0;
+            pageFaults = 0;
+            tlbHits = 0;
+            tlbMisses = 0;
+            pageTable = {};
+            segmentationTable = {};
+            pageReplaceCount = {}; // Reset heatmap data
+
+            updatePageTable();
+            updateSegmentationTable();
+            updateFragmentation();
+            updatePageFaults();
+            updateTLBStats();
+            updateHeatmap();
+            updateMemoryMap(); // Initialize Memory Map
 }
 
 function updatePageTable() {
-    const pageTableDiv = document.getElementById('pageTable');
-    pageTableDiv.innerHTML = `<pre>${JSON.stringify(pageTable, null, 2)}</pre>`;
+    document.getElementById('pageTable').innerHTML = `<pre>Memory Frames: ${JSON.stringify(memoryFrames, null, 2)}</pre>`;
 }
 
 function updatePageFaults() {
-    const pageFaultsDiv = document.getElementById('pageFaults');
-    pageFaultsDiv.innerHTML = `Page Faults: ${pageFaults}`;
+    document.getElementById('pageFaults').innerHTML = `Page Faults: ${pageFaults}`;
 }
 
 function updateTLBStats() {
-    const tlbStatsDiv = document.getElementById('tlbStats');
-    tlbStatsDiv.innerHTML = `TLB Hits: ${tlbHits}, TLB Misses: ${tlbMisses}`;
+    document.getElementById('tlbStats').innerHTML = `TLB Hits: ${tlbHits}, TLB Misses: ${tlbMisses}`;
 }
+function updateSegmentationTable() {
+            segmentationTable = {};
+            for (let i = 0; i < memoryFrames.length; i++) {
+                segmentationTable[i] = {
+                    segment: Math.floor(i / segmentSize),
+                    page: memoryFrames[i]
+                };
+            }
+            document.getElementById('segmentationTable').innerHTML = `<pre>${JSON.stringify(segmentationTable, null, 2)}</pre>`;
+}
+function updateFragmentation() {
+            const totalMemory = memorySize;
+            const usedMemory = memoryFrames.length * pageSize;
+            const internalFragmentation = usedMemory % pageSize;
+            const externalFragmentation = totalMemory - usedMemory;
 
-
-
+            document.getElementById('fragmentation').innerHTML = `
+                <p>Internal Fragmentation: ${internalFragmentation} KB</p>
+                <p>External Fragmentation: ${externalFragmentation} KB</p>
+            `;
+}
 function runSimulationStep() {
     if (currentStep >= accessSequence.length) {
         clearInterval(simulationInterval);
@@ -349,74 +404,83 @@ function updatePageTable() {
     const pageTableDiv = document.getElementById('pageTable');
     pageTableDiv.innerHTML = `<pre>Memory Frames: ${JSON.stringify(memoryFrames, null, 2)}</pre>`;
 }
-// function runSimulationStep() {
-//     if (currentStep >= accessSequence.length) {
-//         clearInterval(simulationInterval);
-//         return;
-//     }
+function runSimulationStep() {
+            if (currentStep >= accessSequence.length) {
+                clearInterval(simulationInterval);
+                alert("Simulation complete!");
+                return;
+            }
 
-//     const page = accessSequence[currentStep];
-//     if (!pageTable[page]) {
-//         pageFaults++;
-//         pageTable[page] = true; // Simulate page replacement
-//     } else {
-//         tlbHits++;
-//     }
+            const page = accessSequence[currentStep];
 
-//     currentStep++;
-//     updatePageTable();
-//     updatePageFaults();
-//     updateTLBStats();
+            if (memoryFrames.includes(page)) {
+                tlbHits++;
+            } else {
+                tlbMisses++;
+                pageFaults++;
 
-//     // Update charts
-//     updateCharts();
-// }
+                if (memoryFrames.length >= memorySize / pageSize) {
+                    const replacedPage = memoryFrames[0]; // For FIFO, replace the first page
+                    pageReplaceCount[replacedPage] = (pageReplaceCount[replacedPage] || 0) + 1; // Track replaced page
+                    replacePage(page);
+                } else {
+                    memoryFrames.push(page);
+                }
+            }
+
+            updatePageTable();
+            updateSegmentationTable();
+            updateFragmentation();
+            updatePageFaults();
+            updateTLBStats();
+            updateCharts();
+            updateHeatmap();
+            updateMemoryMap(); // Update Memory Map
+            currentStep++;
+        }
 
 // Controls
-document.getElementById('startBtn').addEventListener('click', function() {
-    clearInterval(simulationInterval); // Clear any existing interval
-    simulationInterval = setInterval(runSimulationStep, 1000); // Run every second
-    // runSimulationStep();
-});
+document.getElementById('startBtn').addEventListener('click', function () {
+            clearInterval(simulationInterval);
+            simulationInterval = setInterval(runSimulationStep, 1000); // Fixed speed of 1000ms
+        });
 
-document.getElementById('pauseBtn').addEventListener('click', function() {
-    clearInterval(simulationInterval);
-});
+        document.getElementById('pauseBtn').addEventListener('click', function () {
+            clearInterval(simulationInterval);
+        });
 
-document.getElementById('resetBtn').addEventListener('click', function() {
-    clearInterval(simulationInterval);
-    initializeSimulation(memorySize, pageSize, algorithm, sequence); // Reset simulation
-});
+        document.getElementById('resetBtn').addEventListener('click', function () {
+            clearInterval(simulationInterval);
+            initializeSimulation(memorySize, pageSize, segmentSize, selectedAlgorithm, accessSequence);
+        });
 
-document.getElementById('stepBtn').addEventListener('click', function() {
-    runSimulationStep();
-});
+        document.getElementById('stepBtn').addEventListener('click', function () {
+            runSimulationStep();
+    });
 
 // Chart Initialization
 function initializeCharts() {
-    const pageFaultCtx = document.getElementById('pageFaultChart').getContext('2d');
-    const algorithmComparisonCtx = document.getElementById('algorithmComparisonChart').getContext('2d');
+            const pageFaultCtx = document.getElementById('pageFaultChart').getContext('2d');
 
-    // Page Fault Rate Chart
-    pageFaultChart = new Chart(pageFaultCtx, {
-        type: 'line',
-        data: {
-            labels: [], // Time steps
-            datasets: [{
-                label: 'Page Fault Rate',
-                data: [], // Page fault counts
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+            pageFaultChart = new Chart(pageFaultCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Page Fault Rate',
+                        data: [],
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Simulation Step' } },
+                        y: { title: { display: true, text: 'Page Faults' }, beginAtZero: true }
+                    }
                 }
-            }
+            });
         }
-    });
 
     // Algorithm Comparison Chart
     algorithmComparisonChart = new Chart(algorithmComparisonCtx, {
@@ -459,7 +523,26 @@ function updateCharts() {
     // Update Algorithm Comparison Chart (placeholder logic)
     algorithmComparisonChart.data.datasets[0].data = [pageFaults, pageFaults + 2, pageFaults + 5]; // Example data
     algorithmComparisonChart.update();
-}
+    }
+    document.getElementById('exportBtn').addEventListener('click', function () {
+            const data = {
+                pageFaults: pageFaults,
+                tlbHits: tlbHits,
+                tlbMisses: tlbMisses,
+                memoryFrames: memoryFrames,
+                pageTable: pageTable,
+                segmentationTable: segmentationTable,
+                pageReplaceCount: pageReplaceCount
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'simulation_results.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
     </script>
 </body>
 </html>
