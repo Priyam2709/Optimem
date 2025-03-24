@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OptiMem</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+
+</head>
+<body>
+    <main class="text-white">
+        <nav class="flex justify-between items-center h-16 bg-black  fixed shadow-sm font-mono text-2xl font-bold w-full" role="navigation ">
+            <div class="pl-8">
+                <h1 class="text-3xl">OptiMem</h1>
+            </div>
+           
+            <ul class="pr-8 flex justify-between items-center gap-x-6">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="grid grid-cols-2 gap-40 p-10 bg-slate-950">
+            <div class="flex flex-col justify-center items-center mt-12 p-20">
+                <h1 class="text-5xl mb-4">Optimize Memory</h1>
+                <img src="Pics/Pics/8f2e02_b48fe634bb514414b1960c320e7f8500~mv2.png" alt="" class="">
+                <p class="text-xl p-6 text-center">Experience the power of real-time simulation with OptiMem. Monitor page table mappings, page faults, TLB hits, and more while comparing algorithms.</p>
+                <button id="getStartedBtn" class="bg-indigo-500 px-20 py-4 rounded-full font-bold">Get Started</button>
+            
+                <!-- Form (initially hidden) -->
+                <div id="formContainer" class="hidden mt-8 w-full max-w-2xl">
+                    <form id="simulationForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                        <!-- Memory Size -->
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="memorySize">
+                                Memory Size (in KB)
+                            </label>
+                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="memorySize" type="number" placeholder="Enter memory size" required>
+                        </div>
+            
+                        <!-- Page Size -->
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="pageSize">
+                                Page Size (in KB)
+                            </label>
+                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="pageSize" type="number" placeholder="Enter page size" required>
+                        </div>
+            
+                        <!-- Page Replacement Algorithm -->
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="algorithm">
+                                Page Replacement Algorithm
+                            </label>
+                            <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="algorithm" required>
+                                <option value="">Select an algorithm</option>
+                                <option value="FIFO">FIFO</option>
+                                <option value="LRU">LRU</option>
+                                <option value="OPT">OPT</option>
+                            </select>
+                        </div>
+            
+                        <!-- Memory Access Sequence -->
+                        <div class="mb-6">
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="accessSequence">
+                                Memory Access Sequence (e.g., 1, 2, 3, 4, 1, 2)
+                            </label>
+                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="accessSequence" type="text" placeholder="Enter memory access sequence" required>
+                        </div>
+            
+                        <!-- Buttons -->
+                        <div class="flex items-center justify-between">
+                            <button class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                                Start Simulation
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            
+                <!-- Simulation Section (initially hidden) -->
+                <div id="simulationSection" class="hidden mt-8 w-full max-w-4xl">
+                    <h2 class="text-3xl mb-4">Simulation</h2>
+                    <div class="bg-white text-black  shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                        <!-- Page Table Mappings -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-2">Page Table Mappings</h3>
+                            <div id="pageTable" class="text-lg"></div>
+                        </div>
+            
+                        <!-- Page Faults and Replacements -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-2">Page Faults and Replacements</h3>
+                            <div id="pageFaults" class="text-lg"></div>
+                        </div>
+            
+                        <!-- TLB Hits and Misses -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-2">TLB Hits and Misses</h3>
+                            <div id="tlbStats" class="text-lg"></div>
+                        </div>
+            
+                        <!-- Controls -->
+                        <div class="flex items-center justify-between">
+                            <button id="startBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                Start
+                            </button>
+                            <button id="pauseBtn" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                Pause
+                            </button>
+                            <button id="resetBtn" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                Reset
+                            </button>
+                            <button id="stepBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                                Step
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Visualization Section (initially hidden) -->
+                <div id="visualizationSection" class="hidden mt-8 w-full max-w-4xl">
+                    <h2 class="text-3xl mb-4">Visualization</h2>
+                    <div class="bg-white text-black shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                        <!-- Page Fault Rate Over Time -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-2">Page Fault Rate Over Time</h3>
+                            <canvas id="pageFaultChart" width="400" height="200"></canvas>
+                        </div>
+            
+                        <!-- Algorithm Comparison -->
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-2">Algorithm Comparison</h3>
+                            <canvas id="algorithmComparisonChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-20">
+                <img src="Pics\Pics\8f2e02_007c7a6a49524a79bdfed26d354dfbf3~mv2.png" alt="">
+            </div>
+        </div>
+        <div class="bg-slate-600 p-8 pt-20">
+            <h1 class=" text-5xl font-mono">Latest Post</h1>
+            <div class="grid grid-cols-3 gap-20 p-20">
+                <div class="border-2 border-white p-4">
+                    <img src="Pics\Pics\8f2e02_b4e24642066940cba3fef50eb2fd9bda~mv2.webp" alt="">
+                    <p class="text-2xl py-2">Priyam Saxena</p>
+                    <p>April 20, 2021</p>
+                    <hr>
+                    <h1 class="text-4xl">Enhance Operating System, Learning with OptiMum Intractive Simulation</h1>
+                </div>
+                <div class="border-2 border-white p-4">
+                    <img src="Pics\Pics\8f2e02_3a523c7d250f465998f94e90f695b16f~mv2.webp" alt="">
+                    <p class="text-2xl py-2">Aaditya Jain</p>
+                    <p>April 20, 2021</p>
+                    <hr>
+                    <h1 class="text-4xl">SimuLearn OS: Optimal Simulation for OS Learning</h1>
+                </div>
+                <div class="border-2 border-white p-4">
+                    <img src="Pics\Pics\8f2e02_e8a3928c3eab42f8a43abb1a3cbe3a7a~mv2.webp" alt="">
+                    <p class="text-2xl py-2">John Chacha</p>
+                    <p>April 20, 2021</p>
+                    <hr>
+                    <h1 class="text-4xl">OptiTech OS: Technological Simulation for OS Learning</h1>
+                </div>
+            </div>
+        </div>
+        <div class="bg-black p-8 pt-20">
+            <h1 class="text-5xl font-mono">Services</h1>
+            <div class="grid grid-cols-3 gap-20 p-20">
+                <div class="border-b-2 border-white p-4">
+                    <img src="Pics\Pics\8f2e02_3a523c7d250f465998f94e90f695b16f~mv2.webp" alt="">
+                    <h1 class="text-4xl my-6">Visualizing Memory</h1> 
+                    <button class="bg-white rounded-full px-4 py-2 text-black font-semibold mx-[35%]">Analyse</button> 
+                </div>
+                <div class="border-b-2 border-white p-4">
+                    <img src="Pics\Pics\8f2e02_e8a3928c3eab42f8a43abb1a3cbe3a7a~mv2.webp" alt="">
+                    <h1 class="text-4xl my-6">Comparing Algorithms</h1>
+                    <button class="bg-white rounded-full px-4 py-2 text-black font-semibold mx-[35%]">Compare</button>
+                </div>
+                <div class="border-b-2 border-white p-4">
+                    <img src="Pics\Pics\8f2e02_b4e24642066940cba3fef50eb2fd9bda~mv2.webp" alt="">
+                    <h1 class="text-4xl my-6">Real-time Simulation</h1>
+                    <button class="bg-white rounded-full px-4 py-2 text-black font-semibold mx-[35%]">Simulate</button>
+                </div>
+            </div>
+
+        </div>
+        <footer class="grid grid-cols-3 bg-white p-8 text-black mt-8 h-96">
+            <div>
+                <h1 class="text-2xl">OptiMem</h1>
+            </div>
+            <div>
+                <h1 class="text-2xl">
+                    Priyam Saxena
+                    <br>
+                    9506600011
+                    <br>
+                    <br>
+                    priyamsaxena23@lpu.in
+                    <br>
+                    <br>
+                    500 Terry Francine Street, 
+                    <br> 6th Floor, San Francisco, CA 94158
+                </h1>
+                <div class="flex gap-x-4 h-10 my-8">
+                    <img src="Pics\Pics\f_logo.png" alt="">
+                    <img src="Pics\Pics\i_logo.png" alt="">
+                    <img src="Pics\Pics\w_logo.png" alt="">
+                    <img src="Pics\Pics\x_logo.png" alt="">
+                </div>
+            </div>
+            <div>
+                <h1 class="text-2xl">Privacy Policy
+                    <br>
+                    Accessibility Statement
+                    <br>
+                    Terms & Conditions
+                    <br>
+                    Refund Policy
+                </h1>
+            </div>
+        </footer>
+    </main>
+    <script>
+        document.getElementById('getStartedBtn').addEventListener('click', function() {
+    // Show the form container
+    document.getElementById('formContainer').classList.toggle('hidden');
+});
+
+document.getElementById('simulationForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent form submission
+
+    // Get form inputs
+    const memorySize = document.getElementById('memorySize').value;
+    const pageSize = document.getElementById('pageSize').value;
+    const algorithm = document.getElementById('algorithm').value;
+    const accessSequence = document.getElementById('accessSequence').value.split(',').map(Number);
+
+    // Validate inputs
+    if (!memorySize || !pageSize || !algorithm || !accessSequence) {
+        alert('Please fill out all fields.');
+        return;
+    }
+
+    // Initialize simulation
+    initializeSimulation(memorySize, pageSize, algorithm, accessSequence);
+
+    // Show simulation and visualization sections
+    document.getElementById('simulationSection').classList.toggle('hidden');
+    document.getElementById('visualizationSection').classList.toggle('hidden');
+
+    // Initialize charts after the visualization section is visible
+    initializeCharts();
+});
+
+// Simulation Variables
+let simulationInterval;
+let memoryFrames = []; // Represents the memory frames (e.g., [1, 2, 3])
+let currentStep = 0;
+let pageFaults = 0;
+let tlbHits = 0;
+let tlbMisses = 0;
+let pageTable = {};
+let accessSequence = [];
+
+// Chart Variables
+let pageFaultChart;
+let algorithmComparisonChart;
+
+function initializeSimulation(memorySize, pageSize, algorithm, sequence) {
+    // Reset simulation
+    memoryFrames = [];
+    currentStep = 0;
+    pageFaults = 0;
+    tlbHits = 0;
+    tlbMisses = 0;
+    pageTable = {};
+    accessSequence = sequence;
+
+    // Update UI
+    updatePageTable();
+    updatePageFaults();
+    updateTLBStats();
+}
+
+function updatePageTable() {
+    const pageTableDiv = document.getElementById('pageTable');
+    pageTableDiv.innerHTML = `<pre>${JSON.stringify(pageTable, null, 2)}</pre>`;
+}
+
+function updatePageFaults() {
+    const pageFaultsDiv = document.getElementById('pageFaults');
+    pageFaultsDiv.innerHTML = `Page Faults: ${pageFaults}`;
+}
+
+function updateTLBStats() {
+    const tlbStatsDiv = document.getElementById('tlbStats');
+    tlbStatsDiv.innerHTML = `TLB Hits: ${tlbHits}, TLB Misses: ${tlbMisses}`;
+}
+
+
+
+function runSimulationStep() {
+    if (currentStep >= accessSequence.length) {
+        clearInterval(simulationInterval);
+        alert("Simulation complete!");
+        return;
+    }
+  
+
+    const page = accessSequence[currentStep];
+
+    // Check if the page is already in memory
+    if (memoryFrames.includes(page)) {
+        tlbHits++; // Page is in memory (TLB hit)
+    } else {
+        tlbMisses++; // Page is not in memory (TLB miss)
+        pageFaults++;
+
+        // If memory is full, replace a page using the selected algorithm
+        if (memoryFrames.length >= memorySize / pageSize) {
+            replacePage(page);
+        } else {
+            memoryFrames.push(page); // Add the page to memory
+        }
+    }
+
+    // Update the page table to reflect the current state of memory
+    updatePageTable();
+
+    updatePageFaults();
+    updateTLBStats();
+    updateCharts();
+    currentStep++;
+}
+
+function replacePage(newPage) {
+    // Simulate FIFO page replacement (for example)
+    const replacedPage = memoryFrames.shift(); // Remove the first page (oldest)
+    memoryFrames.push(newPage); // Add the new page
+    console.log(`Replaced page ${replacedPage} with page ${newPage}`);
+}
+
+function updatePageTable() {
+    const pageTableDiv = document.getElementById('pageTable');
+    pageTableDiv.innerHTML = `<pre>Memory Frames: ${JSON.stringify(memoryFrames, null, 2)}</pre>`;
+}
+// function runSimulationStep() {
+//     if (currentStep >= accessSequence.length) {
+//         clearInterval(simulationInterval);
+//         return;
+//     }
+
+//     const page = accessSequence[currentStep];
+//     if (!pageTable[page]) {
+//         pageFaults++;
+//         pageTable[page] = true; // Simulate page replacement
+//     } else {
+//         tlbHits++;
+//     }
+
+//     currentStep++;
+//     updatePageTable();
+//     updatePageFaults();
+//     updateTLBStats();
+
+//     // Update charts
+//     updateCharts();
+// }
+
+// Controls
+document.getElementById('startBtn').addEventListener('click', function() {
+    clearInterval(simulationInterval); // Clear any existing interval
+    simulationInterval = setInterval(runSimulationStep, 1000); // Run every second
+    // runSimulationStep();
+});
+
+document.getElementById('pauseBtn').addEventListener('click', function() {
+    clearInterval(simulationInterval);
+});
+
+document.getElementById('resetBtn').addEventListener('click', function() {
+    clearInterval(simulationInterval);
+    initializeSimulation(memorySize, pageSize, algorithm, sequence); // Reset simulation
+});
+
+document.getElementById('stepBtn').addEventListener('click', function() {
+    runSimulationStep();
+});
+
+// Chart Initialization
+function initializeCharts() {
+    const pageFaultCtx = document.getElementById('pageFaultChart').getContext('2d');
+    const algorithmComparisonCtx = document.getElementById('algorithmComparisonChart').getContext('2d');
+
+    // Page Fault Rate Chart
+    pageFaultChart = new Chart(pageFaultCtx, {
+        type: 'line',
+        data: {
+            labels: [], // Time steps
+            datasets: [{
+                label: 'Page Fault Rate',
+                data: [], // Page fault counts
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Algorithm Comparison Chart
+    algorithmComparisonChart = new Chart(algorithmComparisonCtx, {
+        type: 'bar',
+        data: {
+            labels: ['FIFO', 'LRU', 'OPT'],
+            datasets: [{
+                label: 'Page Faults',
+                data: [0, 0, 0], // Placeholder data
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(75, 192, 192, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Update Charts
+function updateCharts() {
+    // Update Page Fault Rate Chart
+    pageFaultChart.data.labels.push(currentStep);
+    pageFaultChart.data.datasets[0].data.push(pageFaults);
+    pageFaultChart.update();
+
+    // Update Algorithm Comparison Chart (placeholder logic)
+    algorithmComparisonChart.data.datasets[0].data = [pageFaults, pageFaults + 2, pageFaults + 5]; // Example data
+    algorithmComparisonChart.update();
+}
+    </script>
+</body>
+</html>
