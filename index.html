@@ -3,546 +3,1022 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OptiMem</title>
-    <link rel="stylesheet" href="main.css">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>OptiMem - Advanced Virtual Memory Simulator</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+        
+        body {
+            font-family: 'Fira Code', monospace, sans-serif;
+            scroll-behavior: smooth;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark);
+            color: var(--light);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .memory-frame {
+            transition: all 0.3s ease;
+        }
+        
+        .memory-frame:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+        }
+        
+        .dark-mode {
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        
+        .dark-mode .card {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+        
+        .tutorial-highlight {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+        }
+    </style>
 </head>
-<body>
-    <main class="text-white">
-        <nav class="flex justify-between items-center h-16 bg-black fixed shadow-sm font-mono text-2xl font-bold w-full" role="navigation">
-            <div class="pl-8">
-                <h1 class="text-3xl bg-blue-700 font-bold w-full">OptiMem</h1>
-            </div>
-            <ul class="pr-8 flex justify-between items-center gap-x-6">
-                <li><a href="#home" class="hover:text-blue-400 transition duration-300">Home</a></li>
-                <li><a href="#blog" class="hover:text-blue-400 transition duration-300">Blog</a></li>
-                <li><a href="#services" class="hover:text-blue-400 transition duration-300">Services</a></li>
-                <li><a href="#contact" class="hover:text-blue-400 transition duration-300">Contact</a></li>
-            </ul>
-        </nav>
-        <div id="home" class="grid grid-cols-2 gap-40 p-10 bg-slate-950">
-            <div class="flex flex-col justify-center items-center mt-12 p-20">
-                <h1 class="text-5xl mb-4">Optimize Memory</h1>
-                <img src="Pics/Pics/8f2e02_b48fe634bb514414b1960c320e7f8500~mv2.png" alt="" class="">
-                <p class="text-xl p-6 text-center">Experience the power of real-time simulation with OptiMem. Monitor page table mappings, page faults, TLB hits, and more while comparing algorithms.</p>
-                <button id="getStartedBtn" class="bg-indigo-500 px-20 py-4 rounded-full font-bold">Get Started</button>
-            
-                <!-- Form (initially hidden) -->
-                <div id="formContainer" class="hidden mt-8 w-full max-w-2xl">
-                    <form id="simulationForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                        <!-- Memory Size -->
-                        <div class="mb-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="memorySize">
-                                Memory Size (in KB)
-                            </label>
-                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="memorySize" type="number" placeholder="Enter memory size" required>
-                        </div>
-            
-                        <!-- Page Size -->
-                        <div class="mb-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="pageSize">
-                                Page Size (in KB)
-                            </label>
-                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="pageSize" type="number" placeholder="Enter page size" required>
-                        </div>
-                        <!-- Segment Size (New Feature) -->
-                        <div class="mb-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="segmentSize">
-                                Segment Size (in KB)
-                            </label>
-                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="segmentSize" type="number" placeholder="Enter segment size" required>
-                        </div>
-                        <!-- Page Replacement Algorithm -->
-                        <div class="mb-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="algorithm">
-                                Page Replacement Algorithm
-                            </label>
-                            <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="algorithm" required>
-                                <option value="">Select an algorithm</option>
-                                <option value="FIFO">FIFO</option>
-                                <option value="LRU">LRU</option>
-                                <option value="OPT">OPT</option>
-                            </select>
-                        </div>
-            
-                        <!-- Memory Access Sequence -->
-                        <div class="mb-6">
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="accessSequence">
-                                Memory Access Sequence (e.g., 1, 2, 3, 4, 1, 2)
-                            </label>
-                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="accessSequence" type="text" placeholder="Enter memory access sequence" required>
-                        </div>
-            
-                        <!-- Buttons -->
-                        <div class="flex items-center justify-between">
-                            <button class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                                Start Simulation
-                            </button>
-                        </div>
-                    </form>
+<body class="bg-slate-50 text-slate-900">
+    <!-- Navigation -->
+    <nav class="flex justify-between items-center h-16 bg-indigo-700 fixed shadow-lg w-full z-50 px-6">
+        <div class="flex items-center">
+            <h1 class="text-2xl font-bold text-white flex items-center">
+                <i class="fas fa-memory mr-2"></i>OptiMem
+            </h1>
+        </div>
+        <ul class="hidden md:flex space-x-8">
+            <li><a href="#home" class="text-white hover:text-indigo-200 transition duration-300 font-medium">Home</a></li>
+            <li><a href="#features" class="text-white hover:text-indigo-200 transition duration-300 font-medium">Features</a></li>
+            <li><a href="#simulator" class="text-white hover:text-indigo-200 transition duration-300 font-medium">Simulator</a></li>
+            <li><a href="#tutorial" class="text-white hover:text-indigo-200 transition duration-300 font-medium">Tutorial</a></li>
+            <li><a href="#about" class="text-white hover:text-indigo-200 transition duration-300 font-medium">About</a></li>
+        </ul>
+        <button id="darkModeToggle" class="text-white p-2 rounded-full hover:bg-indigo-600 transition">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button id="mobileMenuButton" class="md:hidden text-white">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden fixed top-16 left-0 right-0 bg-indigo-800 z-40 shadow-lg">
+        <ul class="flex flex-col space-y-4 p-6">
+            <li><a href="#home" class="text-white hover:text-indigo-200 transition duration-300 font-medium">Home</a></li>
+            <li><a href="#features" class="text-white hover:text-indigo-200 transition duration-300 font-medium">Features</a></li>
+            <li><a href="#simulator" class="text-white hover:text-indigo-200 transition duration-300 font-medium">Simulator</a></li>
+            <li><a href="#tutorial" class="text-white hover:text-indigo-200 transition duration-300 font-medium">Tutorial</a></li>
+            <li><a href="#about" class="text-white hover:text-indigo-200 transition duration-300 font-medium">About</a></li>
+        </ul>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-24 pb-16 px-6 md:px-16 bg-gradient-to-r from-indigo-700 to-purple-700 text-white">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold mb-6">Master Virtual Memory with Interactive Simulations</h1>
+                <p class="text-xl mb-8 text-indigo-100">Visualize page replacement algorithms, memory management, and performance metrics in real-time with OptiMem's powerful educational tool.</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#simulator" class="bg-white text-indigo-700 px-8 py-3 rounded-lg font-bold hover:bg-indigo-100 transition duration-300 flex items-center">
+                        <i class="fas fa-play mr-2"></i> Start Simulating
+                    </a>
+                    <a href="#tutorial" class="border-2 border-white text-white px-8 py-3 rounded-lg font-bold hover:bg-white hover:text-indigo-700 transition duration-300 flex items-center">
+                        <i class="fas fa-graduation-cap mr-2"></i> Learn Basics
+                    </a>
                 </div>
+            </div>
+            <div class="hidden md:block">
+                <img src="https://illustrations.popsy.co/amber/digital-nomad.svg" alt="Memory Visualization" class="w-full h-auto">
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-16 px-6 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-4 text-indigo-700">Key Features</h2>
+            <p class="text-xl text-center mb-12 text-slate-600">Everything you need to understand virtual memory systems</p>
             
-                <!-- Simulation Section (initially hidden) -->
-                <div id="simulationSection" class="hidden mt-8 w-full max-w-4xl">
-                    <h2 class="text-3xl mb-4">Simulation</h2>
-                    <div class="bg-white text-black  shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                        <!-- Page Table Mappings -->
-                        <div class="mb-6">
-                            <h3 class="text-xl font-bold mb-2">Page Table Mappings</h3>
-                            <div id="pageTable" class="text-lg"></div>
-                        </div>
-                        <!-- Segmentation Table (New Feature) -->
-                        <div class="mb-6">
-                            <h3 class="text-xl font-bold mb-2">Segmentation Table</h3>
-                            <div id="segmentationTable" class="text-lg"></div>
-                        </div>
-                        <!-- Memory Fragmentation (New Feature) -->
-                        <div class="mb-6">
-                            <h3 class="text-xl font-bold mb-2">Memory Fragmentation</h3>
-                            <div id="fragmentation" class="text-lg"></div>
-                        </div>
-                        <!-- Page Faults and Replacements -->
-                        <div class="mb-6">
-                            <h3 class="text-xl font-bold mb-2">Page Faults and Replacements</h3>
-                            <div id="pageFaults" class="text-lg"></div>
-                        </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-slate-50 p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 border border-slate-200">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-project-diagram text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Multiple Algorithms</h3>
+                    <p class="text-slate-600">Compare FIFO, LRU, and OPT page replacement algorithms with real-time visualization of their performance differences.</p>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="bg-slate-50 p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 border border-slate-200">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-chart-line text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Comprehensive Metrics</h3>
+                    <p class="text-slate-600">Track page faults, TLB hits/misses, memory fragmentation, and replacement patterns with interactive charts.</p>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="bg-slate-50 p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 border border-slate-200">
+                    <div class="text-indigo-600 mb-4">
+                        <i class="fas fa-graduation-cap text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Educational Focus</h3>
+                    <p class="text-slate-600">Built-in tutorial mode with guided examples and explanations of key virtual memory concepts.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Simulator Section -->
+    <section id="simulator" class="py-16 px-6 bg-slate-100">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-4 text-indigo-700">Memory Simulator</h2>
+            <p class="text-xl text-center mb-12 text-slate-600">Configure and run your virtual memory simulation</p>
             
-                        <!-- TLB Hits and Misses -->
-                        <div class="mb-6">
-                            <h3 class="text-xl font-bold mb-2">TLB Hits and Misses</h3>
-                            <div id="tlbStats" class="text-lg"></div>
-                        </div>
+            <div class="grid md:grid-cols-4 gap-1 mb-6">
+                <button id="preset1" class="bg-indigo-100 text-indigo-700 py-2 px-4 rounded-tl-lg rounded-bl-lg hover:bg-indigo-200 transition">
+                    Basic Example
+                </button>
+                <button id="preset2" class="bg-indigo-100 text-indigo-700 py-2 px-4 hover:bg-indigo-200 transition">
+                    Moderate Load
+                </button>
+                <button id="preset3" class="bg-indigo-100 text-indigo-700 py-2 px-4 hover:bg-indigo-200 transition">
+                    Heavy Thrashing
+                </button>
+                <button id="preset4" class="bg-indigo-100 text-indigo-700 py-2 px-4 rounded-tr-lg rounded-br-lg hover:bg-indigo-200 transition">
+                    Custom Settings
+                </button>
+            </div>
             
-                        <!-- Controls -->
-                        <div class="flex items-center justify-between">
-                            <button id="startBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                                Start
-                            </button>
-                            <button id="pauseBtn" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                                Pause
-                            </button>
-                            <button id="resetBtn" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                                Reset
-                            </button>
-                            <button id="stepBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                                Step
-                            </button>
-                            <button id="exportBtn" class="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                                Export Results
-                            </button>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="grid md:grid-cols-2 gap-8 p-8">
+                    <!-- Configuration Panel -->
+                    <div>
+                        <h3 class="text-xl font-bold mb-6 text-indigo-700 flex items-center">
+                            <i class="fas fa-cog mr-2"></i> Simulation Configuration
+                        </h3>
+                        
+                        <form id="simulationForm" class="space-y-6">
+                            <!-- Memory Size -->
+                            <div>
+                                <label for="memorySize" class="block text-sm font-medium text-slate-700 mb-1">
+                                    Memory Size (KB)
+                                    <span class="tooltip">
+                                        <i class="fas fa-info-circle text-indigo-500 ml-1"></i>
+                                        <span class="tooltiptext">Total physical memory available for page frames</span>
+                                    </span>
+                                </label>
+                                <input type="number" id="memorySize" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 1024" required>
+                            </div>
+                            
+                            <!-- Page Size -->
+                            <div>
+                                <label for="pageSize" class="block text-sm font-medium text-slate-700 mb-1">
+                                    Page Size (KB)
+                                    <span class="tooltip">
+                                        <i class="fas fa-info-circle text-indigo-500 ml-1"></i>
+                                        <span class="tooltiptext">Size of each page/frame in the memory system</span>
+                                    </span>
+                                </label>
+                                <input type="number" id="pageSize" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 32" required>
+                            </div>
+                            
+                            <!-- Algorithm Selection -->
+                            <div>
+                                <label for="algorithm" class="block text-sm font-medium text-slate-700 mb-1">
+                                    Page Replacement Algorithm
+                                    <span class="tooltip">
+                                        <i class="fas fa-info-circle text-indigo-500 ml-1"></i>
+                                        <span class="tooltiptext">Strategy for selecting which page to replace when memory is full</span>
+                                    </span>
+                                </label>
+                                <select id="algorithm" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                                    <option value="">Select an algorithm</option>
+                                    <option value="FIFO">FIFO (First-In-First-Out)</option>
+                                    <option value="LRU">LRU (Least Recently Used)</option>
+                                    <option value="OPT">OPT (Optimal)</option>
+                                    <option value="CLOCK">Clock</option>
+                                    <option value="SECOND_CHANCE">Second Chance</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Access Sequence -->
+                            <div>
+                                <label for="accessSequence" class="block text-sm font-medium text-slate-700 mb-1">
+                                    Memory Access Sequence
+                                    <span class="tooltip">
+                                        <i class="fas fa-info-circle text-indigo-500 ml-1"></i>
+                                        <span class="tooltiptext">Comma-separated list of page numbers being accessed</span>
+                                    </span>
+                                </label>
+                                <textarea id="accessSequence" rows="3" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5" required></textarea>
+                            </div>
+                            
+                            <!-- Simulation Speed -->
+                            <div>
+                                <label for="simulationSpeed" class="block text-sm font-medium text-slate-700 mb-1">
+                                    Simulation Speed
+                                </label>
+                                <input type="range" id="simulationSpeed" min="100" max="2000" value="500" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                                <div class="flex justify-between text-sm text-slate-500">
+                                    <span>Slow</span>
+                                    <span>Fast</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-4 pt-4">
+                                <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition flex items-center">
+                                    <i class="fas fa-play mr-2"></i> Start Simulation
+                                </button>
+                                <button type="reset" class="border border-slate-300 text-slate-700 px-6 py-2 rounded-lg font-medium hover:bg-slate-100 transition">
+                                    Reset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Visualization Preview -->
+                    <div>
+                        <h3 class="text-xl font-bold mb-6 text-indigo-700 flex items-center">
+                            <i class="fas fa-eye mr-2"></i> Visualization Preview
+                        </h3>
+                        
+                        <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 h-full flex flex-col">
+                            <div class="flex-grow flex items-center justify-center">
+                                <div class="text-center">
+                                    <i class="fas fa-memory text-5xl text-indigo-300 mb-4"></i>
+                                    <p class="text-slate-500">Configure and run a simulation to see the visualization</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            
-                <!-- Visualization Section (initially hidden) -->
-                <div id="visualizationSection" class="hidden mt-8 w-full max-w-4xl">
-                    <h2 class="text-3xl mb-4">Visualization</h2>
-                    <div class="bg-white text-black shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                        <!-- Page Fault Rate Over Time -->
-                        <div class="mb-6">
-                            <h3 class="text-xl font-bold mb-2">Page Fault Rate Over Time</h3>
-                            <canvas id="pageFaultChart" width="400" height="200"></canvas>
+                
+                <!-- Simulation Results Section (Initially Hidden) -->
+                <div id="simulationResults" class="hidden p-8 border-t border-slate-200">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-indigo-700 flex items-center">
+                            <i class="fas fa-chart-bar mr-2"></i> Simulation Results
+                        </h3>
+                        <div class="flex space-x-2">
+                            <button id="exportBtn" class="bg-white border border-indigo-600 text-indigo-600 px-4 py-1 rounded-lg text-sm hover:bg-indigo-50 transition flex items-center">
+                                <i class="fas fa-download mr-1"></i> Export
+                            </button>
+                            <button id="fullscreenBtn" class="bg-white border border-indigo-600 text-indigo-600 px-4 py-1 rounded-lg text-sm hover:bg-indigo-50 transition flex items-center">
+                                <i class="fas fa-expand mr-1"></i> Fullscreen
+                            </button>
                         </div>
-            
-                        <!-- Algorithm Comparison -->
-                        <div class="mb-6">
-                            <h3 class="text-xl font-bold mb-2">Algorithm Comparison</h3>
-                            <canvas id="algorithmComparisonChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <!-- Stats Overview -->
+                    <div class="grid md:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                            <p class="text-sm text-indigo-700 font-medium">Page Faults</p>
+                            <p id="statPageFaults" class="text-2xl font-bold text-indigo-700">0</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                            <p class="text-sm text-green-700 font-medium">TLB Hits</p>
+                            <p id="statTLBHits" class="text-2xl font-bold text-green-700">0</p>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                            <p class="text-sm text-red-700 font-medium">TLB Misses</p>
+                            <p id="statTLBMisses" class="text-2xl font-bold text-red-700">0</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                            <p class="text-sm text-purple-700 font-medium">Hit Ratio</p>
+                            <p id="statHitRatio" class="text-2xl font-bold text-purple-700">0%</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts and Visualizations -->
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <!-- Page Fault Chart -->
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                            <h4 class="font-medium mb-3 text-slate-700">Page Faults Over Time</h4>
+                            <canvas id="pageFaultChart" height="200"></canvas>
+                        </div>
+                        
+                        <!-- Hit Ratio Chart -->
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                            <h4 class="font-medium mb-3 text-slate-700">Hit/Miss Ratio</h4>
+                            <canvas id="hitRatioChart" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Memory Visualization -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-medium text-slate-700">Memory Map</h4>
+                            <div class="flex space-x-2">
+                                <button id="startBtn" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition flex items-center">
+                                    <i class="fas fa-play mr-1"></i> Start
+                                </button>
+                                <button id="pauseBtn" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600 transition flex items-center">
+                                    <i class="fas fa-pause mr-1"></i> Pause
+                                </button>
+                                <button id="stepBtn" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition flex items-center">
+                                    <i class="fas fa-step-forward mr-1"></i> Step
+                                </button>
+                                <button id="resetBtn" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition flex items-center">
+                                    <i class="fas fa-undo mr-1"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="memoryMap" class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-wrap gap-2 min-h-32">
+                            <!-- Memory frames will be dynamically inserted here -->
+                        </div>
+                        
+                        <div class="mt-2 text-sm text-slate-500 flex justify-between">
+                            <span id="currentStep">Current step: 0/0</span>
+                            <span id="currentAlgorithm">Algorithm: None</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Detailed Tables -->
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- Page Table -->
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                            <h4 class="font-medium mb-3 text-slate-700">Page Table</h4>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-slate-200">
+                                    <thead class="bg-slate-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Page</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Frame</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pageTableBody" class="bg-white divide-y divide-slate-200">
+                                        <!-- Page table rows will be dynamically inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- TLB Table -->
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                            <h4 class="font-medium mb-3 text-slate-700">TLB (Translation Lookaside Buffer)</h4>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-slate-200">
+                                    <thead class="bg-slate-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Page</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Frame</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Last Access</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tlbTableBody" class="bg-white divide-y divide-slate-200">
+                                        <!-- TLB table rows will be dynamically inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="mt-20">
-                <img src="Pics\Pics\8f2e02_007c7a6a49524a79bdfed26d354dfbf3~mv2.png" alt="">
+        </div>
+    </section>
+
+    <!-- Tutorial Section -->
+    <section id="tutorial" class="py-16 px-6 bg-indigo-50">
+    <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-bold text-center mb-4 text-indigo-700">Virtual Memory Tutorial</h2>
+        <p class="text-xl text-center mb-12 text-slate-600">Master virtual memory concepts through interactive lessons</p>
+        
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="grid md:grid-cols-3">
+                <!-- Tutorial Navigation -->
+                <div class="bg-slate-50 p-6 border-r border-slate-200">
+                    <h3 class="text-lg font-bold mb-6 text-indigo-700">Topics</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <button class="tutorial-tab w-full text-left px-4 py-2 rounded-lg font-medium hover:bg-indigo-100 transition active-tab" data-tab="intro">
+                                <i class="fas fa-home mr-2"></i>Introduction
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tutorial-tab w-full text-left px-4 py-2 rounded-lg font-medium hover:bg-indigo-100 transition" data-tab="paging">
+                                <i class="fas fa-file-alt mr-2"></i>Paging Concepts
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tutorial-tab w-full text-left px-4 py-2 rounded-lg font-medium hover:bg-indigo-100 transition" data-tab="algorithms">
+                                <i class="fas fa-random mr-2"></i>Replacement Algorithms
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tutorial-tab w-full text-left px-4 py-2 rounded-lg font-medium hover:bg-indigo-100 transition" data-tab="tlb">
+                                <i class="fas fa-bolt mr-2"></i>TLB Explained
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tutorial-tab w-full text-left px-4 py-2 rounded-lg font-medium hover:bg-indigo-100 transition" data-tab="fragmentation">
+                                <i class="fas fa-puzzle-piece mr-2"></i>Fragmentation
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tutorial-tab w-full text-left px-4 py-2 rounded-lg font-medium hover:bg-indigo-100 transition" data-tab="simulation">
+                                <i class="fas fa-play-circle mr-2"></i>Running Simulations
+                            </button>
+                        </li>
+                        <li>
+                            <button class="tutorial-tab w-full text-left px-4 py-2 rounded-lg font-medium hover:bg-indigo-100 transition" data-tab="realworld">
+                                <i class="fas fa-globe mr-2"></i>Real-world Systems
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Tutorial Content -->
+                <div class="md:col-span-2 p-8">
+                    <!-- Introduction Content -->
+                    <div id="tutorial-intro" class="tutorial-content">
+                                <h3 class="text-2xl font-bold mb-4 text-indigo-700">Introduction to Virtual Memory</h3>
+                                <p class="mb-4 text-slate-700">Virtual memory is a memory management technique that provides an "idealized abstraction" of the storage resources that are actually available on a given machine.</p>
+                                
+                                <div class="bg-indigo-50 p-4 rounded-lg mb-6 border border-indigo-100">
+                                    <h4 class="font-bold mb-2 text-indigo-700">Key Benefits:</h4>
+                                    <ul class="list-disc pl-5 space-y-1">
+                                        <li>Allows execution of processes larger than physical memory</li>
+                                        <li>Simplifies programming by abstracting memory hierarchy</li>
+                                        <li>Provides memory protection between processes</li>
+                                        <li>Enables more efficient use of physical memory</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                    <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                        <h4 class="font-bold mb-2 text-indigo-700">Physical Memory</h4>
+                                        <p class="text-slate-700">Actual RAM chips in the computer with fixed size.</p>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                        <h4 class="font-bold mb-2 text-indigo-700">Virtual Memory</h4>
+                                        <p class="text-slate-700">Illusion of a very large memory space provided by the OS.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-center mb-6">
+                                    <img src="https://www.cs.uic.edu/~jbell/CourseNotes/OperatingSystems/images/Chapter9/9_02_VirtualAddressSpace.jpg" alt="Virtual Memory Diagram" class="rounded-lg border border-slate-200 max-w-full h-auto">
+                                </div>
+                                
+                                <p class="text-slate-700">In the simulator, you'll see how virtual addresses are translated to physical addresses through page tables and how page replacement algorithms manage memory.</p>
+                    </div>
+                    
+                    <!-- Paging Concepts -->
+                    <div id="tutorial-paging" class="tutorial-content hidden">
+                        <h3 class="text-2xl font-bold mb-4 text-indigo-700">Paging Concepts</h3>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-100">
+                            <h4 class="font-bold mb-2 text-blue-700">Key Definitions:</h4>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><strong>Page:</strong> Fixed-size block of virtual memory</li>
+                                <li><strong>Frame:</strong> Fixed-size block of physical memory</li>
+                                <li><strong>Page Table:</strong> Data structure mapping virtual to physical addresses</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">Address Translation</h4>
+                                <p class="text-slate-700 mb-3">Virtual addresses are split into:</p>
+                                <ul class="list-disc pl-5 mb-3">
+                                    <li>Page number (index into page table)</li>
+                                    <li>Page offset (position within page)</li>
+                                </ul>
+                                <div class="bg-slate-50 p-3 rounded text-sm font-mono">
+                                    Virtual Address = [Page Number | Offset]
+                                </div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">Page Table Entry</h4>
+                                <p class="text-slate-700 mb-3">Each entry contains:</p>
+                                <ul class="list-disc pl-5">
+                                    <li>Frame number</li>
+                                    <li>Present/absent bit</li>
+                                    <li>Protection bits</li>
+                                    <li>Modified (dirty) bit</li>
+                                    <li>Referenced bit</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100 mb-6">
+                            <h4 class="font-bold mb-2 text-yellow-700">Try It Out:</h4>
+                            <p class="text-slate-700 mb-3">In the simulator, configure:</p>
+                            <ul class="list-disc pl-5 mb-3">
+                                <li>Memory Size = 64KB</li>
+                                <li>Page Size = 4KB</li>
+                                <li>Access Sequence = 1,2,3,4,1,2,5,1,2,3,4,5</li>
+                            </ul>
+                            <p>Observe how the page table maps virtual pages to physical frames.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Page Replacement Algorithms -->
+                    <div id="tutorial-algorithms" class="tutorial-content hidden">
+                        <h3 class="text-2xl font-bold mb-4 text-indigo-700">Page Replacement Algorithms</h3>
+                        
+                        <div class="bg-purple-50 p-4 rounded-lg mb-6 border border-purple-100">
+                            <h4 class="font-bold mb-2 text-purple-700">Algorithm Comparison:</h4>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-slate-200">
+                                    <thead class="bg-purple-100">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left">Algorithm</th>
+                                            <th class="px-4 py-2 text-left">Complexity</th>
+                                            <th class="px-4 py-2 text-left">Page Fault Rate</th>
+                                            <th class="px-4 py-2 text-left">Real-world Use</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-200">
+                                        <tr>
+                                            <td class="px-4 py-2">FIFO</td>
+                                            <td class="px-4 py-2">Low</td>
+                                            <td class="px-4 py-2">High</td>
+                                            <td class="px-4 py-2">Simple systems</td>
+                                        </tr>
+                                        <tr class="bg-white">
+                                            <td class="px-4 py-2">LRU</td>
+                                            <td class="px-4 py-2">Medium</td>
+                                            <td class="px-4 py-2">Medium</td>
+                                            <td class="px-4 py-2">General purpose</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">OPT</td>
+                                            <td class="px-4 py-2">High</td>
+                                            <td class="px-4 py-2">Low (ideal)</td>
+                                            <td class="px-4 py-2">Benchmarking only</td>
+                                        </tr>
+                                        <tr class="bg-white">
+                                            <td class="px-4 py-2">Clock</td>
+                                            <td class="px-4 py-2">Medium</td>
+                                            <td class="px-4 py-2">Medium-Low</td>
+                                            <td class="px-4 py-2">Modern OS</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <!-- FIFO Explanation -->
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">FIFO (First-In-First-Out)</h4>
+                                <p class="text-slate-700 mb-3">Replaces the page that has been in memory the longest.</p>
+                                <div class="bg-slate-50 p-3 rounded text-sm mb-3">
+                                    <strong>Pros:</strong> Simple to implement<br>
+                                    <strong>Cons:</strong> Suffers from Belady's anomaly
+                                </div>
+                            </div>
+                            
+                            <!-- LRU Explanation -->
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">LRU (Least Recently Used)</h4>
+                                <p class="text-slate-700 mb-3">Replaces the page that hasn't been used for the longest time.</p>
+                                <div class="bg-slate-50 p-3 rounded text-sm mb-3">
+                                    <strong>Pros:</strong> Good performance<br>
+                                    <strong>Cons:</strong> Hard to implement efficiently
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100 mb-6">
+                            <h4 class="font-bold mb-2 text-green-700">Hands-on Activity:</h4>
+                            <ol class="list-decimal pl-5 space-y-2">
+                                <li>Run the simulator with the same access sequence but different algorithms</li>
+                                <li>Compare the page fault counts for each algorithm</li>
+                                <li>Notice how OPT gives the fewest faults (but isn't practical)</li>
+                                <li>Observe how LRU approximates OPT's performance</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <!-- TLB Explained -->
+                    <div id="tutorial-tlb" class="tutorial-content hidden">
+                        <h3 class="text-2xl font-bold mb-4 text-indigo-700">Translation Lookaside Buffer (TLB)</h3>
+                        
+                        <div class="bg-red-50 p-4 rounded-lg mb-6 border border-red-100">
+                            <h4 class="font-bold mb-2 text-red-700">TLB Basics:</h4>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Special cache for page table entries</li>
+                                <li>Stores recent virtual-to-physical address translations</li>
+                                <li>Typical size: 64-1024 entries</li>
+                                <li>Access time: 1-10 cycles (vs 100+ for main memory)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">Address Translation Flow</h4>
+                                <ol class="list-decimal pl-5 space-y-1">
+                                    <li>CPU generates virtual address</li>
+                                    <li>Check TLB (hit → physical address available)</li>
+                                    <li>TLB miss → consult page table in memory</li>
+                                    <li>Update TLB with new translation</li>
+                                    <li>Access physical memory</li>
+                                </ol>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">TLB Entry Structure</h4>
+                                <div class="bg-slate-50 p-3 rounded text-sm font-mono mb-2">
+                                    [Tag | Frame Number | Valid Bit | Protection Bits | ...]
+                                </div>
+                                <p class="text-slate-700">TLBs are typically fully associative or set-associative to maximize hit rate.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                            <h4 class="font-bold mb-2 text-indigo-700">Simulator Demonstration:</h4>
+                            <p class="text-slate-700 mb-3">In the simulator:</p>
+                            <ul class="list-disc pl-5 mb-3">
+                                <li>Set Memory Size = 128KB, Page Size = 8KB</li>
+                                <li>Use access sequence: 1,2,3,4,1,2,5,6,1,2,3,4,5,6</li>
+                                <li>Run with LRU algorithm</li>
+                                <li>Watch how TLB hits increase after initial misses</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Fragmentation -->
+                    <div id="tutorial-fragmentation" class="tutorial-content hidden">
+                        <h3 class="text-2xl font-bold mb-4 text-indigo-700">Memory Fragmentation</h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">Internal Fragmentation</h4>
+                                <p class="text-slate-700 mb-3">Wasted space within allocated memory blocks.</p>
+                                <p class="text-slate-700 mb-3"><strong>Cause:</strong> Fixed-size pages mean processes may not need the entire page.</p>
+                                <div class="bg-slate-50 p-3 rounded text-sm">
+                                    <strong>Example:</strong> 5KB process in 8KB page → 3KB wasted
+                                </div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">External Fragmentation</h4>
+                                <p class="text-slate-700 mb-3">Wasted space between allocated blocks.</p>
+                                <p class="text-slate-700 mb-3"><strong>Cause:</strong> Variable-size allocations leave unusable gaps.</p>
+                                <div class="bg-slate-50 p-3 rounded text-sm">
+                                    <strong>Example:</strong> Three 4KB frames free, but can't allocate 8KB contiguous block
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-100">
+                            <h4 class="font-bold mb-2 text-blue-700">How Paging Helps:</h4>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Eliminates external fragmentation (all frames are same size)</li>
+                                <li>Internal fragmentation limited to last page of process</li>
+                                <li>Average internal fragmentation = 0.5 * page size</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                            <h4 class="font-bold mb-2 text-yellow-700">Simulation Exercise:</h4>
+                            <ol class="list-decimal pl-5 space-y-1">
+                                <li>Set Memory Size = 64KB, Page Size = 4KB</li>
+                                <li>Use access sequence: 1,2,3,4,5,6,7,8,1,2,3,4</li>
+                                <li>Run with FIFO algorithm</li>
+                                <li>Observe the fragmentation metrics in the results</li>
+                                <li>Try different page sizes to see effect on fragmentation</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <!-- Running Simulations -->
+                    <div id="tutorial-simulation" class="tutorial-content hidden">
+                        <h3 class="text-2xl font-bold mb-4 text-indigo-700">Running Simulations</h3>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg mb-6 border border-green-100">
+                            <h4 class="font-bold mb-2 text-green-700">Step-by-Step Guide:</h4>
+                            <ol class="list-decimal pl-5 space-y-2">
+                                <li><strong>Configure Parameters:</strong>
+                                    <ul class="list-disc pl-5 mt-1">
+                                        <li>Memory Size (total physical memory)</li>
+                                        <li>Page Size (size of each page/frame)</li>
+                                        <li>Algorithm (FIFO, LRU, OPT, etc.)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Set Access Sequence:</strong>
+                                    <ul class="list-disc pl-5 mt-1">
+                                        <li>Comma-separated list of page numbers</li>
+                                        <li>Example: "1,2,3,4,1,2,5,1,2,3,4,5"</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Run Simulation:</strong>
+                                    <ul class="list-disc pl-5 mt-1">
+                                        <li>Start: Runs continuously</li>
+                                        <li>Pause: Halts simulation</li>
+                                        <li>Step: Advances one step at a time</li>
+                                        <li>Reset: Returns to initial state</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Analyze Results:</strong>
+                                    <ul class="list-disc pl-5 mt-1">
+                                        <li>Page fault count</li>
+                                        <li>TLB hit/miss ratio</li>
+                                        <li>Memory map visualization</li>
+                                        <li>Performance charts</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">Sample Experiments</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li><strong>Belady's Anomaly:</strong>
+                                        <p class="text-sm">Show FIFO producing more faults with more frames</p>
+                                        <p class="text-xs font-mono bg-slate-50 p-1 mt-1">Sequence: 1,2,3,4,1,2,5,1,2,3,4,5</p>
+                                    </li>
+                                    <li><strong>LRU vs FIFO:</strong>
+                                        <p class="text-sm">Compare on same sequence</p>
+                                        <p class="text-xs font-mono bg-slate-50 p-1 mt-1">Sequence: 1,2,3,4,2,1,5,6,2,1,2,3,7,6</p>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">Advanced Features</h4>
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li><strong>Speed Control:</strong> Adjust simulation speed</li>
+                                    <li><strong>Export:</strong> Save results as JSON</li>
+                                    <li><strong>Fullscreen:</strong> Expand visualization</li>
+                                    <li><strong>Heatmap:</strong> View frequently replaced pages</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                            <h4 class="font-bold mb-2 text-purple-700">Learning Objectives:</h4>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Understand relationship between page size and fragmentation</li>
+                                <li>Compare algorithm performance on different access patterns</li>
+                                <li>Visualize how TLB improves performance</li>
+                                <li>Recognize symptoms of memory thrashing</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Real-world Systems -->
+                    <div id="tutorial-realworld" class="tutorial-content hidden">
+                        <h3 class="text-2xl font-bold mb-4 text-indigo-700">Real-world Memory Systems</h3>
+                        
+                        <div class="bg-orange-50 p-4 rounded-lg mb-6 border border-orange-100">
+                            <h4 class="font-bold mb-2 text-orange-700">Modern OS Implementations</h4>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><strong>Linux:</strong> Uses modified Clock algorithm ("Second Chance")</li>
+                                <li><strong>Windows:</strong> Uses Working Set-based algorithm</li>
+                                <li><strong>macOS:</strong> Uses LRU approximation with activity counters</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">Multi-level Page Tables</h4>
+                                <p class="text-slate-700 mb-3">Modern systems use hierarchical page tables to save space:</p>
+                                <ul class="list-disc pl-5 mb-3">
+                                    <li>Page directory points to page tables</li>
+                                    <li>Only allocate page tables for used memory regions</li>
+                                    <li>Common in x86 (2-level) and ARM (3-level)</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                                <h4 class="font-bold mb-2 text-indigo-700">Inverted Page Tables</h4>
+                                <p class="text-slate-700 mb-3">Used in some architectures to save space:</p>
+                                <ul class="list-disc pl-5 mb-3">
+                                    <li>One entry per physical frame (not per virtual page)</li>
+                                    <li>Uses hash table for lookup</li>
+                                    <li>Used in PowerPC and some ARM systems</li>
+                                </ul>
+                                <div class="bg-slate-50 p-3 rounded text-sm">
+                                    <strong>Challenge:</strong> Slower lookups but saves memory
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-100">
+                            <h4 class="font-bold mb-2 text-blue-700">Performance Considerations</h4>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li><strong>TLB Coverage:</strong> (TLB size × page size) determines how much memory can be accessed without TLB misses</li>
+                                <li><strong>Page Size Tradeoffs:</strong>
+                                    <ul class="list-disc pl-5 mt-1">
+                                        <li>Larger pages → fewer TLB misses but more internal fragmentation</li>
+                                        <li>Smaller pages → less fragmentation but more TLB misses</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Superpages:</strong> Some systems support larger pages (2MB, 1GB) for frequently accessed regions</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+                            <h4 class="font-bold mb-2 text-green-700">Beyond the Simulator</h4>
+                            <p class="text-slate-700 mb-3">Real systems add complexity like:</p>
+                            <ul class="list-disc pl-5 space-y-1">
+                                <li>Memory-mapped files</li>
+                                <li>Copy-on-write pages</li>
+                                <li>Swapping to disk</li>
+                                <li>NUMA (Non-Uniform Memory Access) considerations</li>
+                                <li>Memory compression (in macOS and Linux)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div id="blog" class="bg-slate-600 p-8 pt-20">
-            <h1 class=" text-5xl font-mono">Latest Post</h1>
-            <div class="grid grid-cols-3 gap-20 p-20">
-                <div class="border-2 border-white p-4 hover:scale-105 transition-transform duration-300"">
-                    <img src="Pics\Pics\8f2e02_b4e24642066940cba3fef50eb2fd9bda~mv2.webp" alt="">
-                    <p class="text-2xl py-2">Priyam Saxena</p>
-                    <p>March 15, 2025</p>
-                    <hr>
-                    <h1 class="text-4xl">Enhance Operating System, Learning with OptiMum Intractive Simulation</h1>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 px-6 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-4 text-indigo-700">About OptiMem</h2>
+            <p class="text-xl text-center mb-12 text-slate-600">The premier virtual memory simulation tool for education</p>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4 text-indigo-700">Our Mission</h3>
+                    <p class="text-slate-700 mb-6">OptiMem was created to help students and educators better understand the complex concepts of virtual memory systems through interactive visualization and hands-on experimentation.</p>
+                    
+                    <h3 class="text-2xl font-bold mb-4 text-indigo-700">Features</h3>
+                    <ul class="space-y-3 mb-8">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span class="text-slate-700">Interactive simulation of multiple page replacement algorithms</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span class="text-slate-700">Real-time visualization of memory mapping and page faults</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span class="text-slate-700">Comprehensive performance metrics and charts</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span class="text-slate-700">Built-in tutorial with key virtual memory concepts</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="flex space-x-4">
+                        <a href="#simulator" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-700 transition flex items-center">
+                            <i class="fas fa-play mr-2"></i> Try the Simulator
+                        </a>
+                        <a href="#" class="border border-indigo-600 text-indigo-600 px-6 py-2 rounded-lg font-medium hover:bg-indigo-50 transition flex items-center">
+                            <i class="fas fa-book mr-2"></i> Documentation
+                        </a>
+                    </div>
                 </div>
-                <div class="border-2 border-white p-4 hover:scale-105 transition-transform duration-300"">
-                    <img src="Pics\Pics\8f2e02_3a523c7d250f465998f94e90f695b16f~mv2.webp" alt="">
-                    <p class="text-2xl py-2">Aaditya Jain</p>
-                    <p>March 2, 2025</p>
-                    <hr>
-                    <h1 class="text-4xl">Stimulate various virtual memory optimisation algorithms</h1>
-                </div>
-                <div class="border-2 border-white p-4 hover:scale-105 transition-transform duration-300"">
-                    <img src="Pics\Pics\8f2e02_e8a3928c3eab42f8a43abb1a3cbe3a7a~mv2.webp" alt="">
-                    <p class="text-2xl py-2">Paras Bajaj</p>
-                    <p>March 20, 2025</p>
-                    <hr>
-                    <h1 class="text-4xl">Visualise how pages are loaded from main memory to memory frames</h1>
+                
+                <div class="bg-slate-50 p-8 rounded-xl border border-slate-200">
+                    <h3 class="text-2xl font-bold mb-6 text-indigo-700">Development Team</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Team Member 1 -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                            <div class="flex items-center mb-3">
+                                <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold mr-3">
+                                    PB
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">Paras Bajaj</h4>
+                                    <p class="text-sm text-slate-500">Lead Developer</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-slate-700">Specialized in operating systems and memory management algorithms.</p>
+                        </div>
+                        
+                        <!-- Team Member 2 -->
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                            <div class="flex items-center mb-3">
+                                <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold mr-3">
+                                    PS
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">Priyam Saxena</h4>
+                                    <p class="text-sm text-slate-500">UI/UX Designer</p>
+                                </div>
+                            </div>
+                            <p class="text-sm text-slate-700">Focused on creating intuitive educational interfaces.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-6 border-t border-slate-200">
+                        <h4 class="font-bold mb-3 text-indigo-700">Contact Us</h4>
+                        <p class="text-slate-700 mb-4">Have questions or feedback? We'd love to hear from you!</p>
+                        
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-indigo-600 hover:text-indigo-800">
+                                <i class="fab fa-github text-xl"></i>
+                            </a>
+                            <a href="#" class="text-indigo-600 hover:text-indigo-800">
+                                <i class="fab fa-twitter text-xl"></i>
+                            </a>
+                            <a href="#" class="text-indigo-600 hover:text-indigo-800">
+                                <i class="fas fa-envelope text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div id="services" class="bg-black p-8 pt-20">
-            <h1 class="text-5xl font-mono">Services</h1>
-            <div class="grid grid-cols-3 gap-20 p-20">
-                <div class="border-b-2 border-white p-4">
-                    <img src="Pics\Pics\8f2e02_3a523c7d250f465998f94e90f695b16f~mv2.webp" alt="">
-                    <h1 class="text-4xl my-6">Visualizing Memory</h1> 
-                    <button class="bg-white rounded-full px-4 py-2 text-black font-semibold mx-[35%]">Analyse</button> 
-                </div>
-                <div class="border-b-2 border-white p-4">
-                    <img src="Pics\Pics\8f2e02_e8a3928c3eab42f8a43abb1a3cbe3a7a~mv2.webp" alt="">
-                    <h1 class="text-4xl my-6">Comparing Algorithms</h1>
-                    <button class="bg-white rounded-full px-4 py-2 text-black font-semibold mx-[35%]">Compare</button>
-                </div>
-                <div class="border-b-2 border-white p-4">
-                    <img src="Pics\Pics\8f2e02_b4e24642066940cba3fef50eb2fd9bda~mv2.webp" alt="">
-                    <h1 class="text-4xl my-6">Real-time Simulation</h1>
-                    <button class="bg-white rounded-full px-4 py-2 text-black font-semibold mx-[35%]">Simulate</button>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12 px-6">
+        <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-8">
+            <div>
+                <h3 class="text-white text-lg font-bold mb-4 flex items-center">
+                    <i class="fas fa-memory mr-2"></i> OptiMem
+                </h3>
+                <p class="mb-4">The premier virtual memory simulation tool for computer science education.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-slate-400 hover:text-white">
+                        <i class="fab fa-github"></i>
+                    </a>
+                    <a href="#" class="text-slate-400 hover:text-white">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-slate-400 hover:text-white">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
                 </div>
             </div>
-
+            
+            <div>
+                <h3 class="text-white text-lg font-bold mb-4">Quick Links</h3>
+                <ul class="space-y-2">
+                    <li><a href="#home" class="hover:text-white transition">Home</a></li>
+                    <li><a href="#features" class="hover:text-white transition">Features</a></li>
+                    <li><a href="#simulator" class="hover:text-white transition">Simulator</a></li>
+                    <li><a href="#tutorial" class="hover:text-white transition">Tutorial</a></li>
+                    <li><a href="#about" class="hover:text-white transition">About</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3 class="text-white text-lg font-bold mb-4">Resources</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-white transition">Documentation</a></li>
+                    <li><a href="#" class="hover:text-white transition">API Reference</a></li>
+                    <li><a href="#" class="hover:text-white transition">Example Simulations</a></li>
+                    <li><a href="#" class="hover:text-white transition">Research Papers</a></li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3 class="text-white text-lg font-bold mb-4">Legal</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
+                    <li><a href="#" class="hover:text-white transition">License</a></li>
+                </ul>
+            </div>
         </div>
-        <footer id="contact" class="grid grid-cols-3 bg-white p-8 text-black mt-8 h-96">
-            <div>
-                <h1 class="text-4xl font-extrabold text-indigo-500 animate-pulse">OptiMem</h1>
-            </div>
-            <div>
-                <h1 class="text-2xl">
-                    Priyam Saxena
-                    <br>
-                    9506600011
-                    <br>
-                    <br>
-                    priyamsaxena23@lpu.in
-                    <br>
-                    <br>
-                    Lovely Professional University
-                </h1>
-                <br>
-                <h1 class="text-2xl">
-                    Paras Bajaj
-                    <br>
-                    9876553081
-                    <br>
-                    <br>
-                    parasbajaj23@lpu.in
-                    <br>
-                    <br>
-                    Lovely Professional University
-                </h1>
-                <div class="flex gap-x-4 h-10 my-8">
-                    <img src="Pics/Pics/f_logo.png" alt="" class="hover:scale-110 transition-transform">
-                    <img src="Pics/Pics/i_logo.png" alt="" class="hover:scale-110 transition-transform">
-                    <img src="Pics/Pics/w_logo.png" alt="" class="hover:scale-110 transition-transform">
-                    <img src="Pics/Pics/x_logo.png" alt="" class="hover:scale-110 transition-transform">
-                </div>
-            </div>
-            <div>
-                <h1 class="text-2xl">Privacy Policy
-                    <br>
-                    Accessibility Statement
-                    <br>
-                    Terms & Conditions
-                    <br>
-                    Refund Policy
-                </h1>
-            </div>
-        </footer>
-    </main>
-    <script>
-        document.getElementById('getStartedBtn').addEventListener('click', function() {
-    // Show the form container
-    document.getElementById('formContainer').classList.toggle('hidden');
-});
+        
+        <div class="max-w-6xl mx-auto pt-8 mt-8 border-t border-slate-800 text-sm text-center">
+            <p>&copy; 2023 OptiMem. All rights reserved.</p>
+        </div>
+    </footer>
 
-document.getElementById('simulationForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-            // Validate inputs
-            const memorySize = parseInt(document.getElementById('memorySize').value);
-            const pageSize = parseInt(document.getElementById('pageSize').value);
-            const segmentSize = parseInt(document.getElementById('segmentSize').value);
-            const algorithm = document.getElementById('algorithm').value;
-            const accessSequence = document.getElementById('accessSequence').value.split(',').map(Number);
-
-            if (!memorySize || !pageSize || !segmentSize || !algorithm || accessSequence.length === 0) {
-                alert('Please fill out all fields correctly.');
-                return;
-            }
-
-            if (memorySize < pageSize || memorySize < segmentSize) {
-                alert('Memory size must be greater than page size and segment size.');
-                return;
-            }
-
-            // Initialize simulation
-            initializeSimulation(memorySize, pageSize, segmentSize, algorithm, accessSequence);
-
-            // Show simulation and visualization sections
-            document.getElementById('simulationSection').classList.remove('hidden');
-            document.getElementById('visualizationSection').classList.remove('hidden');
-
-            // Initialize charts
-            initializeCharts();
-});
-
-// Simulation Variables
-        let simulationInterval;
-        let memoryFrames = [];
-        let currentStep = 0;
-        let pageFaults = 0;
-        let tlbHits = 0;
-        let tlbMisses = 0;
-        let pageTable = {};
-        let segmentationTable = {};
-        let accessSequence = [];
-        let memorySize, pageSize, segmentSize, selectedAlgorithm;
-        let pageFaultChart;
-        let pageReplaceCount = {}; // Track how often each page is replaced
-
-function initializeSimulation(memorySize, pageSize, algorithm, sequence) {
-            memorySize = memSize;
-            pageSize = pSize;
-            segmentSize = segSize;
-            selectedAlgorithm = algorithm;
-            accessSequence = sequence;
-
-            memoryFrames = [];
-            currentStep = 0;
-            pageFaults = 0;
-            tlbHits = 0;
-            tlbMisses = 0;
-            pageTable = {};
-            segmentationTable = {};
-            pageReplaceCount = {}; // Reset heatmap data
-
-            updatePageTable();
-            updateSegmentationTable();
-            updateFragmentation();
-            updatePageFaults();
-            updateTLBStats();
-            updateHeatmap();
-            updateMemoryMap(); // Initialize Memory Map
-}
-
-function updatePageTable() {
-    document.getElementById('pageTable').innerHTML = `<pre>Memory Frames: ${JSON.stringify(memoryFrames, null, 2)}</pre>`;
-}
-
-function updatePageFaults() {
-    document.getElementById('pageFaults').innerHTML = `Page Faults: ${pageFaults}`;
-}
-
-function updateTLBStats() {
-    document.getElementById('tlbStats').innerHTML = `TLB Hits: ${tlbHits}, TLB Misses: ${tlbMisses}`;
-}
-function updateSegmentationTable() {
-            segmentationTable = {};
-            for (let i = 0; i < memoryFrames.length; i++) {
-                segmentationTable[i] = {
-                    segment: Math.floor(i / segmentSize),
-                    page: memoryFrames[i]
-                };
-            }
-            document.getElementById('segmentationTable').innerHTML = `<pre>${JSON.stringify(segmentationTable, null, 2)}</pre>`;
-}
-function updateFragmentation() {
-            const totalMemory = memorySize;
-            const usedMemory = memoryFrames.length * pageSize;
-            const internalFragmentation = usedMemory % pageSize;
-            const externalFragmentation = totalMemory - usedMemory;
-
-            document.getElementById('fragmentation').innerHTML = `
-                <p>Internal Fragmentation: ${internalFragmentation} KB</p>
-                <p>External Fragmentation: ${externalFragmentation} KB</p>
-            `;
-}
-function runSimulationStep() {
-    if (currentStep >= accessSequence.length) {
-        clearInterval(simulationInterval);
-        alert("Simulation complete!");
-        return;
-    }
-  
-
-    const page = accessSequence[currentStep];
-
-    // Check if the page is already in memory
-    if (memoryFrames.includes(page)) {
-        tlbHits++; // Page is in memory (TLB hit)
-    } else {
-        tlbMisses++; // Page is not in memory (TLB miss)
-        pageFaults++;
-
-        // If memory is full, replace a page using the selected algorithm
-        if (memoryFrames.length >= memorySize / pageSize) {
-            replacePage(page);
-        } else {
-            memoryFrames.push(page); // Add the page to memory
-        }
-    }
-
-    // Update the page table to reflect the current state of memory
-    updatePageTable();
-
-    updatePageFaults();
-    updateTLBStats();
-    updateCharts();
-    currentStep++;
-}
-
-function replacePage(newPage) {
-    // Simulate FIFO page replacement (for example)
-    const replacedPage = memoryFrames.shift(); // Remove the first page (oldest)
-    memoryFrames.push(newPage); // Add the new page
-    console.log(`Replaced page ${replacedPage} with page ${newPage}`);
-}
-
-function updatePageTable() {
-    const pageTableDiv = document.getElementById('pageTable');
-    pageTableDiv.innerHTML = `<pre>Memory Frames: ${JSON.stringify(memoryFrames, null, 2)}</pre>`;
-}
-function runSimulationStep() {
-            if (currentStep >= accessSequence.length) {
-                clearInterval(simulationInterval);
-                alert("Simulation complete!");
-                return;
-            }
-
-            const page = accessSequence[currentStep];
-
-            if (memoryFrames.includes(page)) {
-                tlbHits++;
-            } else {
-                tlbMisses++;
-                pageFaults++;
-
-                if (memoryFrames.length >= memorySize / pageSize) {
-                    const replacedPage = memoryFrames[0]; // For FIFO, replace the first page
-                    pageReplaceCount[replacedPage] = (pageReplaceCount[replacedPage] || 0) + 1; // Track replaced page
-                    replacePage(page);
-                } else {
-                    memoryFrames.push(page);
-                }
-            }
-
-            updatePageTable();
-            updateSegmentationTable();
-            updateFragmentation();
-            updatePageFaults();
-            updateTLBStats();
-            updateCharts();
-            updateHeatmap();
-            updateMemoryMap(); // Update Memory Map
-            currentStep++;
-        }
-
-// Controls
-document.getElementById('startBtn').addEventListener('click', function () {
-            clearInterval(simulationInterval);
-            simulationInterval = setInterval(runSimulationStep, 1000); // Fixed speed of 1000ms
-        });
-
-        document.getElementById('pauseBtn').addEventListener('click', function () {
-            clearInterval(simulationInterval);
-        });
-
-        document.getElementById('resetBtn').addEventListener('click', function () {
-            clearInterval(simulationInterval);
-            initializeSimulation(memorySize, pageSize, segmentSize, selectedAlgorithm, accessSequence);
-        });
-
-        document.getElementById('stepBtn').addEventListener('click', function () {
-            runSimulationStep();
-    });
-
-// Chart Initialization
-function initializeCharts() {
-            const pageFaultCtx = document.getElementById('pageFaultChart').getContext('2d');
-
-            pageFaultChart = new Chart(pageFaultCtx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Page Fault Rate',
-                        data: [],
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: { title: { display: true, text: 'Simulation Step' } },
-                        y: { title: { display: true, text: 'Page Faults' }, beginAtZero: true }
-                    }
-                }
-            });
-        }
-
-    // Algorithm Comparison Chart
-    algorithmComparisonChart = new Chart(algorithmComparisonCtx, {
-        type: 'bar',
-        data: {
-            labels: ['FIFO', 'LRU', 'OPT'],
-            datasets: [{
-                label: 'Page Faults',
-                data: [0, 0, 0], // Placeholder data
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(75, 192, 192, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(75, 192, 192, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-}
-
-// Update Charts
-function updateCharts() {
-    // Update Page Fault Rate Chart
-    pageFaultChart.data.labels.push(currentStep);
-    pageFaultChart.data.datasets[0].data.push(pageFaults);
-    pageFaultChart.update();
-
-    // Update Algorithm Comparison Chart (placeholder logic)
-    algorithmComparisonChart.data.datasets[0].data = [pageFaults, pageFaults + 2, pageFaults + 5]; // Example data
-    algorithmComparisonChart.update();
-    }
-    document.getElementById('exportBtn').addEventListener('click', function () {
-            const data = {
-                pageFaults: pageFaults,
-                tlbHits: tlbHits,
-                tlbMisses: tlbMisses,
-                memoryFrames: memoryFrames,
-                pageTable: pageTable,
-                segmentationTable: segmentationTable,
-                pageReplaceCount: pageReplaceCount
-            };
-
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'simulation_results.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        });
-    </script>
+    <script src="main.js"></script>
 </body>
 </html>
