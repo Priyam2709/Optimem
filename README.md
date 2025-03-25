@@ -1,115 +1,76 @@
-OptiMem - Virtual Memory Simulator
 
-📌 Overview
-OptiMem is an interactive educational tool designed to visualize and simulate virtual memory management concepts in operating systems. It provides real-time demonstrations of:
+# OptiMem - Virtual Memory Simulator
 
-Page replacement algorithms (FIFO, LRU, OPT)
+## Overview
+OptiMem is an interactive simulator that demonstrates virtual memory management through real-time visualization of:
 
-Address translation (Page tables, TLB)
+- Page replacement algorithms (FIFO, LRU, OPT, Clock)
+- Address translation via page tables and TLB
+- Memory fragmentation analysis
+- Performance metric tracking
 
-Memory fragmentation (Internal/External)
+Designed for computer science education and professional development.
 
-Performance metrics (Page faults, TLB hits/misses)
+## Key Features
+- **Interactive Simulations**: Step-through execution with visual feedback
+- **Algorithm Comparison**: FIFO, LRU, OPT with side-by-side metrics
+- **Comprehensive Analytics**: Page faults, hit ratios, TLB performance
+- **Educational Resources**: Integrated tutorials and real-world examples
+- **Data Export**: JSON results for further analysis
 
-Built for students, educators, and developers to understand memory management visually.
+## Technical Stack
+| Component | Technology |
+|-----------|------------|
+| Frontend  | HTML5, CSS3 (Tailwind), JavaScript |
+| Charts    | Chart.js 3.5+ |
+| Icons     | Font Awesome 6 |
+| Responsive| Mobile-optimized design |
 
-✨ Features
-✅ Interactive Simulations
-
-Real-time visualization of memory allocation
-
-Step-by-step execution control
-
-✅ Multiple Algorithms
-
-Compare FIFO, LRU, OPT
-
-✅ Comprehensive Metrics
-
-Page fault tracking
-
-TLB hit/miss analysis
-
-Memory fragmentation calculation
-
-✅ Educational Tutorials
-
-Built-in guides on virtual memory concepts
-
-Real-world OS examples (Linux, Windows)
-
-✅ Export & Share
-
-Save simulation results as JSON
-
-Fullscreen mode for presentations
-
-🛠️ Technologies Used
-Frontend: HTML5, CSS3 (Tailwind CSS), JavaScript
-
-Visualization: Chart.js
-
-Icons: Font Awesome
-
-Responsive Design: Mobile-friendly layout
-
-🚀 Getting Started
-1. Run Locally
-bash
-Copy
+## Quick Start
+```bash
 git clone https://github.com/Priyam2709/optimem.git
 cd optimem
+open index.html
+```
 
-🎮 How to Use
-Configure Simulation
+## Usage Guide
+1. **Configure**:
+   - Set memory parameters (64KB-1024KB)
+   - Select algorithm (FIFO/LRU/OPT)
+   - Input access sequence (e.g., "1,2,3,4,1,2")
 
-Set memory size, page size, and algorithm
+2. **Execute**:
+   - Real-time or step-by-step simulation
+   - Adjust speed with slider control
 
-Enter page access sequence (e.g., 1, 2, 3, 4, 1, 2)
+3. **Analyze**:
+   - Visual memory maps
+   - Page table/TLB status
+   - Performance charts
 
-Run Simulation
+## Sample Simulation
+```yaml
+Configuration:
+  Memory: 64KB
+  Page Size: 4KB 
+  Algorithm: LRU
+  Sequence: 1,2,3,4,1,2,5,1,2,3,4,5
 
-Click Start to run automatically
+Results:
+  Page Faults: 7
+  TLB Hit Rate: 41.67%
+  Memory Utilization: 87.5%
+```
 
-Use Step to advance manually
+## Documentation
+Explore our interactive tutorial covering:
+- Paging fundamentals
+- Algorithm tradeoffs
+- Performance optimization
+- Real-world OS implementations
 
-Analyze Results
+## Contributors
+- Paras Bajaj (System Architecture)
+- Priyam Saxena (UI/UX Design)
 
-View memory maps, page tables, and charts
-
-Export data for further analysis
-
-📚 Tutorial Sections
-Introduction to Virtual Memory
-
-Paging Concepts
-
-Page Replacement Algorithms
-
-TLB (Translation Lookaside Buffer)
-
-Memory Fragmentation
-
-Real-world OS Implementations
-
-📊 Example Simulation
-plaintext
-Copy
-Memory Size: 64KB  
-Page Size: 4KB  
-Algorithm: LRU  
-Access Sequence: 1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5  
-
-Results:  
-- Page Faults: 7  
-- TLB Hits: 5  
-- Hit Ratio: 41.67%  
-📜 License
-MIT License - Free for educational and personal use.
-
-📬 Contact
-Developer: Paras Bajaj, Priyam Saxena
-
-Contributions Welcome!
-
-🌟 Happy Learning! Explore virtual memory like never before with OptiMem.
+ [Live Demo](https://priyam2709.github.io/Optimem/)
